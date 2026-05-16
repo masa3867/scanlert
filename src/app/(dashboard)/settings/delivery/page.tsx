@@ -1,23 +1,50 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 export default function DeliverySettingsPage() {
   const [slackUrl, setSlackUrl] = useState('')
   const [threshold, setThreshold] = useState(70)
   const [saved, setSaved] = useState(false)
+  const [loading, setLoading] = useState(true)
 
-  function handleSave(e: React.FormEvent) {
+  useEffect(() => {
+    fetch('/api/settings/delivery')
+      .then(r => r.json())
+      .then(data => {
+        setSlackUrl(data.slackWebhookUrl ?? '')
+        setThreshold(data.notifyAbove ?? 70)
+      })
+      .finally(() => setLoading(false))
+  }, [])
+
+  async function handleSave(e: React.FormEvent) {
     e.preventDefault()
+    await fetch('/api/settings/delivery', {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ slackWebhookUrl: slackUrl, notifyAbove: threshold }),
+    })
     setSaved(true)
     setTimeout(() => setSaved(false), 2000)
+  }
+
+  if (loading) {
+    return (
+      <div className="max-w-xl">
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-slate-900">配信設定</h1>
+        </div>
+        <p className="text-sm text-slate-500">読み込み中...</p>
+      </div>
+    )
   }
 
   return (
     <div className="max-w-xl">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-slate-900">配信設定</h1>
-        <p className="text-sm text-slate-500 mt-1">Slack通知とn8n連携の設定を管理します。</p>
+        <p className="text-sm text-slate-500 mt-1">Slack通知の設定を管理します。</p>
       </div>
 
       <form onSubmit={handleSave} className="space-y-5">
@@ -47,41 +74,20 @@ export default function DeliverySettingsPage() {
                 onChange={e => setThreshold(Number(e.target.value))}
                 className="w-full accent-indigo-600"
               />
+              <p className="text-xs text-slate-400 mt-1">このスコア以上のトピックが収集されたとき Slack に通知します</p>
             </div>
           </div>
         </div>
 
-        {/* n8n Webhook */}
-        <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
-          <h2 className="font-semibold text-slate-900 mb-4 flex items-center gap-2">
-            <span>⚙️</span> n8n 取り込み設定
+        {/* Cron info */}
+        <div className="bg-slate-50 border border-slate-200 rounded-xl p-5 text-sm text-slate-600">
+          <h2 className="font-semibold text-slate-700 mb-2 flex items-center gap-2">
+            <span>⏰</span> 自動収集スケジュール
           </h2>
-          <div className="space-y-3 text-sm text-slate-600">
-            <div>
-              <p className="font-medium text-slate-700 mb-1">Webhook エンドポイント</p>
-              <code className="block bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-xs break-all">
-                POST {typeof window !== 'undefined' ? window.location.origin : 'https://your-domain.com'}/api/webhooks/n8n/ingest
-              </code>
-            </div>
-            <div>
-              <p className="font-medium text-slate-700 mb-1">必要なリクエスト形式</p>
-              <pre className="bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-xs overflow-auto">{`{
-  "title": "記事タイトル",
-  "sourceUrl": "https://...",
-  "contentSnippet": "本文の抜粋",
-  "relevanceScore": 85,
-  "summary": "AI要約テキスト",
-  "watchLabel": "監視設定名"
-}`}</pre>
-            </div>
-            <div>
-              <p className="font-medium text-slate-700 mb-1">HMAC署名（推奨）</p>
-              <p className="text-xs text-slate-500">
-                環境変数 <code className="bg-slate-100 px-1 rounded">N8N_WEBHOOK_SECRET</code> を設定すると、
-                リクエストヘッダー <code className="bg-slate-100 px-1 rounded">x-n8n-signature</code> で署名検証が有効になります。
-              </p>
-            </div>
-          </div>
+          <p className="leading-relaxed">
+            Vercel Cron Jobs が毎時 0 分に自動収集します。収集のキーワードと RSS ソースは{' '}
+            <a href="/settings" className="text-indigo-600 hover:underline">監視設定</a> から管理できます。
+          </p>
         </div>
 
         <button

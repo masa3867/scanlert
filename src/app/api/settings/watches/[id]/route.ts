@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { updateWatch } from '@/lib/mock-data'
+import { updateWatch } from '@/lib/db'
 import { z } from 'zod'
 
 const watchSchema = z.object({
@@ -17,7 +17,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
   if (!parsed.success) {
     return NextResponse.json({ error: { code: 'VALIDATION_ERROR', message: parsed.error.message } }, { status: 400 })
   }
-  const updated = updateWatch(id, parsed.data)
+  const updated = await updateWatch(id, parsed.data)
   if (!updated) return NextResponse.json({ error: { code: 'NOT_FOUND', message: 'Watch not found' } }, { status: 404 })
   return NextResponse.json(updated)
 }

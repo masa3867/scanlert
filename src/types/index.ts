@@ -32,4 +32,4 @@ export type DeliverySettings = {
   notifyAbove: number
 }
 
-export type PipelineMode = 'mock' | 'dev_llm' | 'n8n_led'
+export type PipelineMode = 'mock' | 'production'

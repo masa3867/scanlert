@@ -1,6 +1,6 @@
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { getTopic } from '@/lib/mock-data'
+import { getTopic } from '@/lib/db'
 import { formatDate, scoreColor } from '@/lib/utils'
 import StatusActions from './status-actions'
 
@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic'
 
 export default async function TopicDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
-  const topic = getTopic(id)
+  const topic = await getTopic(id)
   if (!topic) notFound()
 
   return (

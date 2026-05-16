@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { getTopics } from '@/lib/mock-data'
+import { getTopics } from '@/lib/db'
 import { formatDate, scoreColor } from '@/lib/utils'
 import TriggerButton from './trigger-button'
 
@@ -11,7 +11,7 @@ export default async function DashboardPage({
   searchParams: Promise<{ q?: string; status?: string }>
 }) {
   const { q, status } = await searchParams
-  const allTopics = getTopics(q)
+  const allTopics = await getTopics(q)
   const topics = status ? allTopics.filter(t => t.status === status) : allTopics
 
   const counts = {
