@@ -2,6 +2,14 @@ import { getSupabase } from './supabase'
 import type { TopicDetail, TopicStatus, TopicWatch, DeliverySettings } from '@/types'
 import * as mockData from './mock-data'
 
+/**
+ * インメモリの mock-data を使うかどうか。以下のどちらかなら true（Supabase 等は使わない）。
+ *
+ * 1. `ANTHROPIC_API_KEY` が未設定・空文字（ falsy ）
+ * 2. `PIPELINE_MODE` が文字列 `'mock'` と完全一致（大文字小文字区別）
+ *
+ * 注: `production` は必須ではない。未設定かつ Anthropic キーがあればモックではない。
+ */
 export const IS_MOCK_MODE = !process.env.ANTHROPIC_API_KEY || process.env.PIPELINE_MODE === 'mock'
 
 export async function getTopics(q?: string): Promise<TopicDetail[]> {

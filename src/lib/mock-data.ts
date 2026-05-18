@@ -174,5 +174,3 @@ export function ingestTopic(topic: Omit<TopicDetail, 'id' | 'status'>): TopicDet
   topicStore.unshift(newTopic)
   return newTopic
 }
-
-export const IS_MOCK_MODE = !process.env.ANTHROPIC_API_KEY || process.env.PIPELINE_MODE === 'mock'
