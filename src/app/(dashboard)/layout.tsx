@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import type { ReactNode } from 'react'
+import { IS_PIPELINE_MODE_MOCK } from '@/lib/db'
 
 export default function DashboardLayout({ children }: { children: ReactNode }) {
   return (
@@ -29,7 +30,7 @@ export default function DashboardLayout({ children }: { children: ReactNode }) {
         </nav>
         <div className="p-4 border-t border-slate-200 text-xs text-slate-400">
           <p className="font-medium text-slate-500 mb-1">BriefingAI</p>
-          <p>© 2026 — F0 Mock</p>
+          <p>© 2026{IS_PIPELINE_MODE_MOCK ? ' — F0 Mock' : ''}</p>
         </div>
       </aside>
       <main className="ml-56 flex-1 p-8 min-h-screen">{children}</main>

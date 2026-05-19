@@ -165,6 +165,19 @@ export function updateWatch(id: string, patch: Partial<TopicWatch>): TopicWatch 
   return w
 }
 
+export function createWatch(input: Omit<TopicWatch, 'id'>): TopicWatch {
+  const newWatch: TopicWatch = { ...input, id: `watch-${Date.now()}` }
+  watchStore.push(newWatch)
+  return newWatch
+}
+
+export function deleteWatch(id: string): boolean {
+  const index = watchStore.findIndex(w => w.id === id)
+  if (index === -1) return false
+  watchStore.splice(index, 1)
+  return true
+}
+
 export function ingestTopic(topic: Omit<TopicDetail, 'id' | 'status'>): TopicDetail {
   const newTopic: TopicDetail = {
     ...topic,

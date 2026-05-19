@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server'
-import { ingestTopic, IS_MOCK_MODE } from '@/lib/db'
+import { ingestTopic, IS_PIPELINE_MODE_MOCK } from '@/lib/db'
 
 export async function POST() {
-  if (IS_MOCK_MODE) {
+  if (IS_PIPELINE_MODE_MOCK) {
     const topic = await ingestTopic({
       title: `[デモ] 手動トリガーによるサンプルトピック — ${new Date().toLocaleTimeString('ja-JP')}`,
       sourceUrl: 'https://example.com/demo',

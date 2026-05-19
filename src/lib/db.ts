@@ -3,14 +3,21 @@ import type { TopicDetail, TopicStatus, TopicWatch, DeliverySettings } from '@/t
 import * as mockData from './mock-data'
 
 /**
+ * `.env` で `PIPELINE_MODE=mock` と指定したときのみ true。
+ * デモ用バナー・手動取得ボタン、`POST /api/pipeline/trigger` のデモ挙動はこれに合わせる。
+ */
+export const IS_PIPELINE_MODE_MOCK = process.env.PIPELINE_MODE === 'mock'
+
+/**
  * インメモリの mock-data を使うかどうか。以下のどちらかなら true（Supabase 等は使わない）。
  *
  * 1. `ANTHROPIC_API_KEY` が未設定・空文字（ falsy ）
- * 2. `PIPELINE_MODE` が文字列 `'mock'` と完全一致（大文字小文字区別）
+ * 2. `PIPELINE_MODE` が文字列 `'mock'` と完全一致（大文字小文字区別、`IS_PIPELINE_MODE_MOCK` と同義）
  *
  * 注: `production` は必須ではない。未設定かつ Anthropic キーがあればモックではない。
  */
-export const IS_MOCK_MODE = !process.env.ANTHROPIC_API_KEY || process.env.PIPELINE_MODE === 'mock'
+export const IS_MOCK_MODE =
+  !process.env.ANTHROPIC_API_KEY || IS_PIPELINE_MODE_MOCK
 
 export async function getTopics(q?: string): Promise<TopicDetail[]> {
   if (IS_MOCK_MODE) return mockData.getTopics(q)
@@ -53,6 +60,26 @@ export async function updateWatch(id: string, patch: Partial<TopicWatch>): Promi
   if (patch.scoreThreshold !== undefined) dbPatch.score_threshold = patch.scoreThreshold
   const { data } = await supabase.from('watches').update(dbPatch).eq('id', id).select().single()
   return data ? rowToWatch(data) : null
+}
+
+export async function createWatch(input: Omit<TopicWatch, 'id'>): Promise<TopicWatch> {
+  if (IS_MOCK_MODE) return mockData.createWatch(input)
+  const supabase = getSupabase()
+  const { data } = await supabase.from('watches').insert({
+    label: input.label,
+    keywords: input.keywords,
+    source_urls: input.sourceUrls,
+    enabled: input.enabled,
+    score_threshold: input.scoreThreshold,
+  }).select().single()
+  return rowToWatch(data!)
+}
+
+export async function deleteWatch(id: string): Promise<boolean> {
+  if (IS_MOCK_MODE) return mockData.deleteWatch(id)
+  const supabase = getSupabase()
+  const { error } = await supabase.from('watches').delete().eq('id', id)
+  return !error
 }
 
 export async function ingestTopic(topic: Omit<TopicDetail, 'id' | 'status'>): Promise<TopicDetail> {

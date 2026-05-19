@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { getTopics } from '@/lib/db'
+import { getTopics, IS_PIPELINE_MODE_MOCK } from '@/lib/db'
 import { formatDate, scoreColor } from '@/lib/utils'
 import TriggerButton from './trigger-button'
 
@@ -29,16 +29,19 @@ export default async function DashboardPage({
           <h1 className="text-2xl font-bold text-slate-900">トピック一覧</h1>
           <p className="text-sm text-slate-500 mt-0.5">自社ビジネスへの影響度をAIがスコアリング</p>
         </div>
-        <div className="flex items-center gap-3">
-          <TriggerButton />
-        </div>
+        {IS_PIPELINE_MODE_MOCK && (
+          <div className="flex items-center gap-3">
+            <TriggerButton />
+          </div>
+        )}
       </div>
 
-      {/* Mock banner */}
-      <div className="bg-amber-50 border border-amber-200 rounded-lg px-4 py-2.5 text-amber-700 text-xs mb-6 flex items-center gap-2">
-        <span>🔧</span>
-        <span>モックモードで動作中。ANTHROPIC_API_KEY を設定すると実際のAI要約が有効になります。</span>
-      </div>
+      {IS_PIPELINE_MODE_MOCK && (
+        <div className="bg-amber-50 border border-amber-200 rounded-lg px-4 py-2.5 text-amber-700 text-xs mb-6 flex items-center gap-2">
+          <span>🔧</span>
+          <span>モックモードで動作中。ANTHROPIC_API_KEY を設定すると実際のAI要約が有効になります。</span>
+        </div>
+      )}
 
       {/* Search + Filter */}
       <div className="flex items-center gap-3 mb-5">
