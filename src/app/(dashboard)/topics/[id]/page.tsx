@@ -4,7 +4,7 @@ import { getTopic } from '@/lib/db'
 import { formatDate, scoreColor } from '@/lib/utils'
 import StatusActions from './status-actions'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 30
 
 export default async function TopicDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params

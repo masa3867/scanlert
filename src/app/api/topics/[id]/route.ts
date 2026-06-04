@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getTopic, updateTopicStatus } from '@/lib/db'
+import { revalidateDashboardPaths } from '@/lib/revalidate-dashboard'
 import { z } from 'zod'
 
 export async function GET(_: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -20,5 +21,6 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
   }
   const ok = await updateTopicStatus(id, parsed.data.status)
   if (!ok) return NextResponse.json({ error: { code: 'NOT_FOUND', message: 'Topic not found' } }, { status: 404 })
+  revalidateDashboardPaths(id)
   return NextResponse.json({ success: true })
 }

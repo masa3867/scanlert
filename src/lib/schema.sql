@@ -25,6 +25,9 @@
     model text,
     created_at timestamptz not null default now()
   );
+  create index if not exists topics_created_at_idx on topics (created_at desc);
+  create index if not exists topics_status_idx on topics (status);
+
   alter table topics enable row level security;
   create policy "auth users full access" on topics for all to authenticated using (true) with check (true);
 

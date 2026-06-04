@@ -1,4 +1,5 @@
-import type { TopicCard, TopicDetail, TopicWatch, DeliverySettings } from '@/types'
+import type { TopicCard, TopicDetail, TopicWatch, DeliverySettings, TopicCounts, TopicStatus } from '@/types'
+import { TOPICS_LIST_LIMIT } from './env'
 
 export const MOCK_WATCHES: TopicWatch[] = [
   {
@@ -137,10 +138,38 @@ export const MOCK_DELIVERY: DeliverySettings = {
 const topicStore: TopicDetail[] = [...MOCK_TOPICS]
 const watchStore: TopicWatch[] = [...MOCK_WATCHES]
 
-export function getTopics(q?: string): TopicDetail[] {
-  let items = [...topicStore].sort((a, b) => b.createdAt.localeCompare(a.createdAt))
-  if (q) items = items.filter(t => t.title.includes(q) || t.summary.includes(q))
-  return items
+function filterBySearch(items: TopicDetail[], q?: string): TopicDetail[] {
+  if (!q) return items
+  return items.filter(t => t.title.includes(q) || t.summary.includes(q))
+}
+
+function toTopicCard(t: TopicDetail): TopicCard {
+  const { contentSnippet: _snippet, model: _model, ...card } = t
+  return card
+}
+
+function countByStatus(items: TopicDetail[]): TopicCounts {
+  return {
+    all: items.length,
+    new: items.filter(t => t.status === 'new').length,
+    read: items.filter(t => t.status === 'read').length,
+    dismissed: items.filter(t => t.status === 'dismissed').length,
+  }
+}
+
+export function getTopicsList(options?: { q?: string; status?: TopicStatus }): {
+  topics: TopicCard[]
+  counts: TopicCounts
+} {
+  const searched = filterBySearch(
+    [...topicStore].sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
+    options?.q,
+  )
+  const counts = countByStatus(searched)
+  let listed = searched
+  if (options?.status) listed = listed.filter(t => t.status === options.status)
+  const topics = listed.slice(0, TOPICS_LIST_LIMIT).map(toTopicCard)
+  return { topics, counts }
 }
 
 export function getTopic(id: string): TopicDetail | null {

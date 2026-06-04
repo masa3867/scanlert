@@ -1,28 +1,28 @@
 import Link from 'next/link'
-import { getTopics, IS_PIPELINE_MODE_MOCK } from '@/lib/db'
+import { getTopicsList } from '@/lib/db'
+import { IS_PIPELINE_MODE_MOCK } from '@/lib/env'
 import { formatDate, scoreColor } from '@/lib/utils'
+import DataWarningBanner from '../data-warning-banner'
 import TriggerButton from './trigger-button'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 30
 
 export default async function DashboardPage({
   searchParams,
 }: {
   searchParams: Promise<{ q?: string; status?: string }>
 }) {
-  const { q, status } = await searchParams
-  const allTopics = await getTopics(q)
-  const topics = status ? allTopics.filter(t => t.status === status) : allTopics
+  const { q, status: statusParam } = await searchParams
+  const status =
+    statusParam === 'new' || statusParam === 'read' || statusParam === 'dismissed'
+      ? statusParam
+      : undefined
 
-  const counts = {
-    all: allTopics.length,
-    new: allTopics.filter(t => t.status === 'new').length,
-    read: allTopics.filter(t => t.status === 'read').length,
-    dismissed: allTopics.filter(t => t.status === 'dismissed').length,
-  }
+  const { topics, counts, warning } = await getTopicsList({ q, status })
 
   return (
     <div>
+      {warning && <DataWarningBanner message={warning} />}
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
@@ -62,7 +62,7 @@ export default async function DashboardPage({
           ] as const).map(({ key, label }) => (
             <Link
               key={String(key)}
-              href={key ? `/dashboard?status=${key}` : '/dashboard'}
+              href={key ? `/dashboard?status=${key}${q ? `&q=${encodeURIComponent(q)}` : ''}` : q ? `/dashboard?q=${encodeURIComponent(q)}` : '/dashboard'}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                 status === key
                   ? 'bg-indigo-600 text-white'

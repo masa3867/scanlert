@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
-import { ingestTopic, IS_PIPELINE_MODE_MOCK } from '@/lib/db'
+import { ingestTopic } from '@/lib/db'
+import { IS_PIPELINE_MODE_MOCK } from '@/lib/env'
+import { revalidateDashboardPaths } from '@/lib/revalidate-dashboard'
 
 export async function POST() {
   if (IS_PIPELINE_MODE_MOCK) {
@@ -13,6 +15,7 @@ export async function POST() {
       model: 'mock',
       createdAt: new Date().toISOString(),
     })
+    revalidateDashboardPaths(topic.id)
     return NextResponse.json({ message: 'Mock pipeline triggered', topic })
   }
 

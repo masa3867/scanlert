@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { updateWatch, deleteWatch } from '@/lib/db'
+import { revalidateDashboardPaths } from '@/lib/revalidate-dashboard'
 import { z } from 'zod'
 
 const watchSchema = z.object({
@@ -19,6 +20,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
   }
   const updated = await updateWatch(id, parsed.data)
   if (!updated) return NextResponse.json({ error: { code: 'NOT_FOUND', message: 'Watch not found' } }, { status: 404 })
+  revalidateDashboardPaths()
   return NextResponse.json(updated)
 }
 
@@ -26,5 +28,6 @@ export async function DELETE(_request: NextRequest, { params }: { params: Promis
   const { id } = await params
   const deleted = await deleteWatch(id)
   if (!deleted) return NextResponse.json({ error: { code: 'NOT_FOUND', message: 'Watch not found' } }, { status: 404 })
+  revalidateDashboardPaths()
   return new NextResponse(null, { status: 204 })
 }

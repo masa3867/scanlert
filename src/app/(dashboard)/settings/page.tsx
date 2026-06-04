@@ -1,14 +1,16 @@
 import { getWatches } from '@/lib/db'
+import DataWarningBanner from '../data-warning-banner'
 import WatchCard from './watch-card'
 import WatchFormModal from './watch-form-modal'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 30
 
 export default async function SettingsPage() {
-  const watches = await getWatches()
+  const { watches, warning } = await getWatches()
 
   return (
     <div className="max-w-2xl">
+      {warning && <DataWarningBanner message={warning} />}
       <div className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">監視設定</h1>

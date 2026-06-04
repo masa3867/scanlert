@@ -16,6 +16,20 @@ export type TopicDetail = TopicCard & {
   model?: string
 }
 
+export type TopicCounts = {
+  all: number
+  new: number
+  read: number
+  dismissed: number
+}
+
+export type TopicsListResult = {
+  topics: TopicCard[]
+  counts: TopicCounts
+  /** Supabase 接続失敗などでモック表示に切り替えたとき */
+  warning?: string
+}
+
 export type TopicWatch = {
   id: string
   label: string

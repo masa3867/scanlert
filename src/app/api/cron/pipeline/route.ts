@@ -18,7 +18,7 @@ export async function GET(request: Request) {
     }
   }
 
-  const [watches, delivery] = await Promise.all([getWatches(), getDeliverySettings()])
+  const [{ watches }, delivery] = await Promise.all([getWatches(), getDeliverySettings()])
   const enabledWatches = watches.filter(w => w.enabled)
 
   let processed = 0
