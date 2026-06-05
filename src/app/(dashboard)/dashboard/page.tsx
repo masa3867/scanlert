@@ -29,11 +29,9 @@ export default async function DashboardPage({
           <h1 className="text-2xl font-bold text-slate-900">トピック一覧</h1>
           <p className="text-sm text-slate-500 mt-0.5">自社ビジネスへの影響度をAIがスコアリング</p>
         </div>
-        {IS_PIPELINE_MODE_MOCK && (
-          <div className="flex items-center gap-3">
-            <TriggerButton />
-          </div>
-        )}
+        <div className="flex items-center gap-3">
+          <TriggerButton isMock={IS_PIPELINE_MODE_MOCK} />
+        </div>
       </div>
 
       {IS_PIPELINE_MODE_MOCK && (

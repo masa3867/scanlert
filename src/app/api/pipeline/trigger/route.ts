@@ -1,7 +1,10 @@
 import { NextResponse } from 'next/server'
 import { ingestTopic } from '@/lib/db'
 import { IS_PIPELINE_MODE_MOCK } from '@/lib/env'
+import { runPipeline } from '@/lib/pipeline'
 import { revalidateDashboardPaths } from '@/lib/revalidate-dashboard'
+
+export const maxDuration = 300
 
 export async function POST() {
   if (IS_PIPELINE_MODE_MOCK) {
@@ -16,8 +19,10 @@ export async function POST() {
       createdAt: new Date().toISOString(),
     })
     revalidateDashboardPaths(topic.id)
-    return NextResponse.json({ message: 'Mock pipeline triggered', topic })
+    return NextResponse.json({ processed: 1, ingested: 1, errors: 0 })
   }
 
-  return NextResponse.json({ message: 'Pipeline runs automatically via Vercel Cron Jobs every hour.' })
+  const result = await runPipeline()
+  revalidateDashboardPaths()
+  return NextResponse.json(result)
 }
