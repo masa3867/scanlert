@@ -34,6 +34,7 @@ export default function SourceList({ urls, onChange }: SourceListProps) {
           value={input}
           onChange={e => setInput(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), addUrl())}
+          onBlur={() => input.trim() && addUrl()}
           placeholder="RSS フィードURLを入力"
           className="flex-1 text-sm border border-slate-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-300"
         />
